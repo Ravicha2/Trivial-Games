@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const createBoard = (placeholder) => {
     return [
@@ -19,6 +19,9 @@ const Game7 = () => {
     const [board, setBoard] = useState(createBoard(0));
     const [started, setStarted] = useState(false);
     const [showBoard, setShowBoard] = useState(createBoard("H"));
+    const [gameOver, setGameOver] = useState(false)
+    const [win, setWin] = useState(false)
+
 
     const plantMines = (board, clickedCell, numMines=10) => {
         let mines = []
@@ -62,7 +65,6 @@ const Game7 = () => {
         exploreBoard[rowIndex][colIndex] = labelledBoard[rowIndex][colIndex]
         while (stack.length > 0) {
             const pos = stack.pop()
-            console.log(pos)
             const posX = pos[0]
             const posY = pos[1]
 
@@ -84,15 +86,49 @@ const Game7 = () => {
                 exploreBoard[posX][posY] = labelledBoard[posX][posY]
             }
         }
+        return exploreBoard
     }
 
     const handleClick = (rowIndex, colIndex) => {
+        if (showBoard[rowIndex][colIndex] === '⛳️') return;
+        let exploredBoard;
         if (!started) {
             const newBoard = plantMines(board, [rowIndex, colIndex])
             setStarted(true)
-            boardTraversal(newBoard, rowIndex, colIndex)
-
+            exploredBoard = boardTraversal(newBoard, rowIndex, colIndex)
+            setShowBoard(exploredBoard)
+        } else {
+            if (board[rowIndex][colIndex] < 0) {
+                setGameOver(true)
+            }
+            exploredBoard = boardTraversal(board, rowIndex, colIndex)
+            setShowBoard(exploredBoard)
         }
+
+        let revealCount = 0
+        for (let row of exploredBoard) {
+            for (let cell of row) {
+                if (cell !== 'H' && cell !== '⛳️') {
+                    revealCount += 1
+                }
+            }
+        }
+        console.log(revealCount)
+        if (revealCount === 71) {
+            setWin(true)
+            console.log("Win")
+        }
+    }
+
+    const handleRightClick = (e, rowIndex, colIndex) => {
+        e.preventDefault()
+        const newBoard = showBoard.map((row) => [...row])
+        if (newBoard[rowIndex][colIndex] === '⛳️') {
+            newBoard[rowIndex][colIndex] = 'H'
+        } else {
+            newBoard[rowIndex][colIndex] = '⛳️'
+        }
+        setShowBoard(newBoard)
     }
 
     const renderboard = (board) => {
@@ -102,11 +138,12 @@ const Game7 = () => {
                 {row.map((cell,colIndex) => {
                     return (
                         <div 
-                            className={`border w-10 h-10 bg-gray-800`}
+                            className={`border w-10 h-10 ${cell === 0 ? 'bg-gray-500 text-gray-300' : (cell === 1 ? 'bg-gray-400 text-red-500' : (cell >= 2 ? 'bg-gray-800 text-green-400' : 'bg-gray-500 text-gray-200'))}`}
                             key={colIndex}
                             onClick={() => handleClick(rowIndex, colIndex)}
+                            onContextMenu={(e) => handleRightClick(e, rowIndex, colIndex)}
                         >
-                            {cell   }
+                            {cell === -1 ? '💣' : (cell === "H" ? '' : cell)}
                         </div>
                     )
                 })}
@@ -115,14 +152,19 @@ const Game7 = () => {
         }))
     }
 
+    useEffect(() => {
+        if (gameOver) {
+            setShowBoard(board)
+        }
+    }, [gameOver])
+
     return (
         <>
             <h1>Hello lets play the Minesweeper!</h1>
+            <h2>{gameOver && 'Busstttted!! Game Over'}</h2>
+            <h2>{win && 'Congratulation you WIN🏆'}</h2>
             <div className="flex flex-col items-center">
                 {renderboard(showBoard)}
-            </div>
-            <div className="flex flex-col my-3 items-center">
-                {renderboard(board)}
             </div>
         </>
     )
