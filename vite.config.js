@@ -10,6 +10,7 @@ export default defineConfig({
     watch: {
       usePolling: false,
     },
+    allowedHosts: ['mushy-winner-amenity.ngrok-free.dev'],
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router'],

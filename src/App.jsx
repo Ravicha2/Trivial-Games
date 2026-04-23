@@ -9,12 +9,15 @@ import Game5 from './components/Game5';
 import Game6 from './components/Game6';
 import Game7 from './components/Game7';
 import Game8 from './components/Game8';
+import Game9 from './components/Game9';
+import Game10 from './components/Game10';
+import Game11 from './components/Game11';
 
 function App() {
 
   return (
     <BrowserRouter>
-    <nav className='flex flex-row gap-4 justify-center p-3 border-b'>
+    <nav className='flex flex-row flex-wrap gap-4 justify-center p-3 border-b'>
       <Link to="/">Home</Link>
       <p>|</p>
       <Link to="/game1">Tic-Tac-Toe</Link> 
@@ -32,8 +35,14 @@ function App() {
       <Link to="/game7">Minesweeper</Link>
       <p>|</p>
       <Link to="/game8">15 Puzzle</Link>
+      <p>|</p>
+      <Link to="/game9">Snake</Link>
+      <p>|</p>
+      <Link to="/game10">Tetris</Link>
+      <p>|</p>
+      <Link to="/game11">Blanko</Link>
     </nav>
-    <Routes>
+      <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/game1" element={<Game1 />} />
       <Route path="/game2" element={<Game2 />} />
@@ -43,6 +52,9 @@ function App() {
       <Route path="/game6" element={<Game6 />} />
       <Route path="/game7" element={<Game7 />} />
       <Route path="/game8" element={<Game8 />} />
+      <Route path="/game9" element={<Game9 />} />
+      <Route path="/game10" element={<Game10 />} />
+      <Route path="/game11" element={<Game11 />} />
       </Routes>
     </BrowserRouter>
   )

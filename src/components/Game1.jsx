@@ -14,21 +14,23 @@ const Game1 = () => {
 
     const getWinningCells = (index, how, direction) => {
         if (how === 'row') {
-            setWinningCells([(index, 0), (index, 1), (index, 2)])
+            setWinningCells([{r: index, c: 0}, {r: index, c: 1}, {r: index, c: 2}])
         } else if (how === 'col') {
-            setWinningCells([(0, index), (1, index), (2, index)])
+            setWinningCells([{r: 0, c: index}, {r: 1, c: index}, {r: 2, c: index}])
         } else if (how === 'diagonal') {
             if (direction === 'left') {
-                setWinningCells([(0, 0), (1, 1), (2, 2)])
+                setWinningCells([{r: 0, c: 0}, {r: 1, c: 1}, {r: 2, c: 2}])
             } else {
-                setWinningCells([(2, 0), (1, 1), (0, 2)])
+                setWinningCells([{r: 2, c: 0}, {r: 1, c: 1}, {r: 0, c: 2}])
             }
         }
     }
 
     const isWinningCell = (row, col) => {
-        if (winningCells[row] === col) {
-            return true
+        for (let e of winningCells) {
+            if (e.r === row && e.c === col) {
+                return true
+            }
         }
         return false
     }
@@ -53,12 +55,12 @@ const Game1 = () => {
         }
         if (table[0][0] && table[0][0] === table[1][1] && table[1][1] === table[2][2]) {
             setWinner(turn)
-            getWinningCells("", 'diagonal', 'right')
+            getWinningCells("", 'diagonal', 'left')
             return;
         }
         if (table[2][0] && table[2][0] === table[1][1] && table[1][1] === table[0][2]) {
             setWinner(turn)
-            getWinningCells("", 'diagonal', 'left')
+            getWinningCells("", 'diagonal', 'right')
             return;
         }
 
