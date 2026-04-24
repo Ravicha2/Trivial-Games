@@ -3,24 +3,29 @@ import { useState, useRef } from "react"
 
 const Game9 = () => {
     const [snake, setSnake] = useState([{x:30, y:10}, {x:31, y:10}, {x:32, y:10}]) //, {x:31, y:10}, {x:32, y:10}])
-    const snakeRef = useRef({ x: 32, y: 10 });
+    const snakeRef = useRef({ x: 32, y: 10 }); // snake head
+
     const randomPos = () => {
         const posX = Math.floor(Math.random() * 800)
         const posY = Math.floor(Math.random() * 460)
         return {x: posX, y: posY}
     }
 
-    const [food, setFood] = useState(randomPos())
+    const [food, setFood] = useState(randomPos()) 
     const [direction, setDirection] = useState([1,0])
     const [marks, setMarks] = useState(0)
-    const foodRef = useRef(food)
+    const foodRef = useRef(food) // food
 
     useEffect(() => {
         const tickRate = 50
         const hitbox = 20
         const gameLoop = setInterval(() => {
+            
+            // calculate next position
             let nextX = snakeRef.current.x + 5*(direction[0]);
             let nextY = snakeRef.current.y + 5*(direction[1]);
+
+            // check border
             if (nextX > 800-20) {
                 nextX = 0;
             } else if (nextX < 0) {
@@ -34,6 +39,7 @@ const Game9 = () => {
 
             snakeRef.current = { x:nextX, y: nextY };
 
+            // check eat food
             const snakeX = snakeRef.current.x
             const snakeY = snakeRef.current.y
             const distX = Math.abs(snakeX - foodRef.current.x)
@@ -46,6 +52,7 @@ const Game9 = () => {
                 setMarks((marks) => marks+1)
             }
 
+            // update snake position
             setSnake((prevSnake) => {
                 const newBody = [...prevSnake, snakeRef.current]
                 return newBody.slice(-(3+marks))
