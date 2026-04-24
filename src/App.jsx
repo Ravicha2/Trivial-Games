@@ -40,7 +40,7 @@ function App() {
       <p>|</p>
       <Link to="/game10">Tetris</Link>
       <p>|</p>
-      <Link to="/game11">Blanko</Link>
+      <Link to="/game11">Flag Guessr</Link>
     </nav>
       <Routes>
       <Route path="/" element={<Home />} />
