@@ -69,7 +69,7 @@ const Game10 = () => {
         const end = currentShape.length + nextCol
         if (nextCol < 0 || end >= 10) return
         if (validMove(shapePos.row, nextCol)) {
-            shapePos.col = nextCol;
+            setShapePos({...shapePos, col: nextCol})
         }
     }    
 
