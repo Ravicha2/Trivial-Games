@@ -1,4 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState } from "react";
+
+// TRICK: Rock-paper-scissors is the simplest game — good warmup.
+// The win logic can be written as a lookup table instead of if/else chains:
+//   const wins = { rock: "scissors", paper: "rock", scissors: "paper" }
+//   if (wins[user] === bot) → user wins
+
+// TRICK: Using emojis for UI — no need for images or CSS, just use strings.
 
 const Game5 = () => {
     const option = ["🪨", "📃", "✂️"]
@@ -12,21 +19,16 @@ const Game5 = () => {
     }
     const handlePlay = (userChose) => {
         const botChose = botChoose()
-        const state = [botChose, userChose]
+        // GOOD: lookup table approach — much cleaner than nested if/else
+        const wins = { "🪨": "✂️", "📃": "🪨", "✂️": "📃" }
         let win;
-        if ((state[0] === "🪨" && state[1] === "📃") || (state[1] === "🪨" && state[0] === "📃")) {
-            win = userChose === "🪨" ? "Bot win" : "User win"
-
-        } else if ((state[0] === "✂️" && state[1] === "📃") || (state[1] === "✂️" && state[0] === "📃")) {
-            win = userChose === "📃" ? "Bot win" : "User win"
-
-        } else if ((state[0] === "✂️" && state[1] === "🪨") || (state[1] === "✂️" && state[0] === "🪨")) {
-            win = userChose === "✂️" ? "Bot win" : "User win"
-
-        } else if (userChose) {
+        if (botChose === userChose) {
             win = "Draw"
+        } else if (wins[userChose] === botChose) {
+            win = "User win"
+        } else {
+            win = "Bot win"
         }
-        console.log(win)
         setUserChose(userChose)
         setBotChose(botChose)
         setUserWin(win)
@@ -38,7 +40,7 @@ const Game5 = () => {
         <div className="flex flex-col items-center">
             <p className='mb-2 border rounded-full w-10 h-10'>🤖</p>
             {
-            userChose && 
+            userChose &&
             <div>
                 {botChose}
             </div>
@@ -47,7 +49,7 @@ const Game5 = () => {
         <p>Vs</p>
         <div className='flex flex-col items-center'>
             {
-                userChose && 
+                userChose &&
                 <div>
                 {userChose}
             </div>

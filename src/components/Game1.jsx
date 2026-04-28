@@ -1,4 +1,17 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+
+// TRICK: 3x3 tic-tac-toe is the simplest grid game — use it as your
+// "starter template" for any turn-based grid game (connect4, minesweeper, etc.)
+// Core pattern: 2D array state + click handler + win check + turn toggle.
+
+// TRICK: Hardcode the 3x3 buttons inline instead of mapping — faster to
+// write, no index/key issues. Only map if the board is bigger than 3x3.
+
+// TRICK: Win check pattern — loop rows, loop cols, then check 2 diagonals
+// separately. Don't overthink it. For 3x3 this is ~15 lines.
+
+// TRICK: `isWinningCell` for highlighting the winning line — just store
+// the winning cells as an array of {r,c} objects and check membership.
 
 const Game1 = () => {
     const [table, setTable] = useState(
@@ -38,39 +51,43 @@ const Game1 = () => {
     const newState = (row, col) => {
         if (table[row][col] === "X" || table[row][col] === "O") return;
 
-        let newTable = table
+        // BUG FIX: must deep copy! `let newTable = table` is a reference, not a copy
+        let newTable = table.map(row => [...row])
         newTable[row][col] = turn
-        setTable(newTable)
 
+        // GOOD: check win BEFORE switching turns, so the current player wins
         for (let i=0; i<3; i++ ) {
-            if (table[i][0] && table[i][0] === table[i][1] && table[i][1] === table[i][2]) {
+            if (newTable[i][0] && newTable[i][0] === newTable[i][1] && newTable[i][1] === newTable[i][2]) {
                 setWinner(turn)
                 getWinningCells(i, 'row')
+                setTable(newTable)
                 return;
-            } else if (table[0][i] && table[0][i] === table[1][i] && table[1][i] === table[2][i]) {
+            } else if (newTable[0][i] && newTable[0][i] === newTable[1][i] && newTable[1][i] === newTable[2][i]) {
                 setWinner(turn)
                 getWinningCells(i, 'col')
+                setTable(newTable)
                 return;
             }
         }
-        if (table[0][0] && table[0][0] === table[1][1] && table[1][1] === table[2][2]) {
+        if (newTable[0][0] && newTable[0][0] === newTable[1][1] && newTable[1][1] === newTable[2][2]) {
             setWinner(turn)
             getWinningCells("", 'diagonal', 'left')
+            setTable(newTable)
             return;
         }
-        if (table[2][0] && table[2][0] === table[1][1] && table[1][1] === table[0][2]) {
+        if (newTable[2][0] && newTable[2][0] === newTable[1][1] && newTable[1][1] === newTable[0][2]) {
             setWinner(turn)
             getWinningCells("", 'diagonal', 'right')
+            setTable(newTable)
             return;
         }
 
-        if (turn === "X") {
-            setTurn("O")
-        } else {
-            setTurn("X")
-        }
+        setTable(newTable)
+        // TRICK: toggle turns with ternary — `setTurn(turn === "X" ? "O" : "X")`
+        setTurn(turn === "X" ? "O" : "X")
     }
 
+    // TRICK: draw check — just loop and check for empty cells
     const draw = () => {
         for (let i=0; i<3; i++) {
             for (let j=0; j<3; j++) {
@@ -87,7 +104,7 @@ const Game1 = () => {
         {winner && `Winner is ${turn}`}
         {draw() && "Draw!"}
         <div>
-            <button 
+            <button
                 style={{width: 50, height: 50 , margin:10, backgroundColor: isWinningCell(0,0) ? "green" : "gray" }} disabled={!!winner || table[0][0] !== ""}  onClick={() => newState(0,0)}>{table[0][0]}</button>
             <button style={{width: 50, height: 50 , margin:10, backgroundColor: isWinningCell(0,1) ? "green" : "gray"}} disabled={!!winner || table[0][1] !== ""}  onClick={() => newState(0,1)}>{table[0][1]}</button>
             <button style={{width: 50, height: 50 , margin:10, backgroundColor: isWinningCell(0,2) ? "green" : "gray"}} disabled={!!winner || table[0][2] !== ""}  onClick={() => newState(0,2)}>{table[0][2]}</button>

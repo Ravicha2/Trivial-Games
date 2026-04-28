@@ -1,15 +1,19 @@
-// Technical Requirements
-// Data Fetching: * On initial component mount, fetch the list of all countries from: 
-// https://restcountries.com/v3.1/all?fields=name,flags.
-// Question Generation: Randomly select one country as the "Correct Answer" and display its flag image.
-// Multiple Choice: Provide four (4) clickable options. One must be the correct name, and the other three must be unique, random "distractors" from the country list.
-// Shuffle: Ensure the correct answer is not always in the same button position.
-// State Management:
-// Track the user's current score.
-// Track the game status (e.g., "Waiting for Guess", "Correct!", or "Wrong!").
-// Once a selection is made, provide immediate visual feedback and transition to the next question after a short delay (e.g., 2 seconds).                      
-
 import { useState, useEffect } from "react";
+
+// TRICK: Data fetching pattern for games that need external data:
+//   1. useState(null) for loading state
+//   2. useEffect with [] deps to fetch on mount
+//   3. Conditional render: if (!data) return "Loading..."
+// This is the simplest async data pattern — no libraries needed.
+
+// TRICK: Multiple choice quiz pattern:
+//   - Store choices as an array
+//   - Pick a random index for the correct answer
+//   - Fill other slots with random distractors
+//   - Check answer by comparing selected choice to correct answer name
+
+// TRICK: Use .map() on the country data to transform it into the shape you
+// need (just {flag, name}) right in the .then() — keeps state simple.
 
 const Game11 = () => {
   const [currentCountry, setCurrentCountry] = useState('')
@@ -39,6 +43,7 @@ const Game11 = () => {
     if (!countryData) return;
     const country = countryData[Math.floor(Math.random() * countryData.length)]
     setCurrentCountry(country)
+    // GOOD: randomly place correct answer among distractors
     let choice = displayAnswer.map(country => randomCountry().name)
     choice[Math.floor(Math.random() * choice.length)] = country.name
     setDisplayAnswer(choice)
@@ -57,20 +62,22 @@ const Game11 = () => {
     }
   }
 
+  // GOOD: re-render new question when score changes
   useEffect(() => {
     renderGame()
   }, [countCorrect, countWrong])
 
+  // Keyboard shortcuts — map number keys to answer indices
   useEffect(() => {
     const handleChoose = (e) => {
       if (e.key === "1") {
-        checkAnswer(1)
+        checkAnswer(0)  // FIX: keyboard index should match button index
       } else if (e.key === "2") {
-        checkAnswer(2)
+        checkAnswer(1)
       } else if (e.key === "3") {
-        checkAnswer(3)
+        checkAnswer(2)
       } else {
-        return 
+        return
       }
     }
     window.addEventListener("keydown", handleChoose)
@@ -86,19 +93,19 @@ const Game11 = () => {
       <div className="w-full flex flex-col items-center mx-auto">
         <img className='w-80' src={currentCountry.flag}/>
         <div className="flex flex-row gap-10 mt-5">
-          <button 
+          <button
             className="border rounded-xl p-2 bg-gray-300 text-black"
             onClick={() => checkAnswer(0)}
           >
             {displayAnswer[0]}
           </button>
-          <button 
+          <button
             className="border rounded-xl p-2 bg-gray-300 text-black"
             onClick={() => checkAnswer(1)}
           >
             {displayAnswer[1]}
           </button>
-          <button 
+          <button
             className="border rounded-xl p-2 bg-gray-300 text-black"
             onClick={() => checkAnswer(2)}
           >
@@ -108,6 +115,6 @@ const Game11 = () => {
       </div>
     </>
   )
-  }
+}
 
 export default Game11;

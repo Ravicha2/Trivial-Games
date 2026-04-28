@@ -1,5 +1,28 @@
 import { useState, useEffect, useRef } from "react"
 
+// TRICK: Tetris uses a "locked board" + "current shape" pattern:
+//   - lockedBoard: 2D array of 0s and 1s (cemented pieces)
+//   - currentShape: 2D array of the falling piece
+//   - shapePos: {row, col} position of the piece top-left corner
+//   - getDisplayBoard(): merge locked board + current shape for rendering
+
+// TRICK: validMove() checks ALL cells of the current shape against the
+// locked board and borders. Loop over shape cells, if solid (1), check:
+//   - Row/col within bounds
+//   - No collision with locked board
+// This ONE function handles all validation.
+
+// TRICK: "Ref callback" pattern to avoid stale closures in setInterval:
+//   const savedFn = useRef();
+//   useEffect(() => { savedFn.current = fn });  // update ref every render
+//   useEffect(() => {
+//     const loop = setInterval(() => savedFn.current(), tickRate);
+//     return () => clearInterval(loop);
+//   }, []);  // empty deps = stable interval, reads latest fn via ref
+
+// TRICK: When piece can't move down, "cement" it onto the locked board,
+// then spawn a new shape. Simple and works.
+
 const randomShape = () => {
     const shapes = [
         [
@@ -34,6 +57,7 @@ const Game10 = () => {
     const [currentShape, setCurrentShape] = useState(randomShape())
     const [shapePos, setShapePos] = useState({ row: 0, col: 0 });
 
+    // GOOD: single validation function for all moves
     const validMove = (targetRow, targetCol) => {
         for (let r=0; r < currentShape.length; r++) {
             for (let c=0; c < currentShape[r].length; c++) {
@@ -66,24 +90,22 @@ const Game10 = () => {
 
     const attemptMoveX = (direction) => {
         const nextCol = shapePos.col + direction
-        const end = currentShape.length + nextCol
-        if (nextCol < 0 || end >= 10) return
         if (validMove(shapePos.row, nextCol)) {
             setShapePos({...shapePos, col: nextCol})
         }
-    }    
+    }
 
+    // GOOD: cement shape onto locked board
     const cementShape = () => {
         let newLockedBoard = lockedBoard.map(row => [...row])
         for (let r=0; r < currentShape.length; r++) {
             for (let c=0; c < currentShape[r].length; c++) {
-                // if block, move down and add to cement
                 if (currentShape[r][c] !== 0){
                     const finalRow = shapePos.row + r
                     const finalCol = shapePos.col + c
                     newLockedBoard[finalRow][finalCol] = currentShape[r][c]
                 }
-            } 
+            }
         }
         setLockedBoard(newLockedBoard);
     }
@@ -93,6 +115,7 @@ const Game10 = () => {
         setShapePos({ row:0, col:0})
     }
 
+    // GOOD: merge locked board + current shape for display
     const getDisplayBoard = () => {
         let displayBoard = lockedBoard.map(row => [...row])
         for (let r=0; r < currentShape.length; r++) {
@@ -101,7 +124,7 @@ const Game10 = () => {
                     const drawRow = shapePos.row + r
                     const drawCol = shapePos.col + c
 
-                    if (drawRow < 20 && drawCol >=0 && drawCol < 20) {
+                    if (drawRow < 20 && drawCol >=0 && drawCol < 10) {
                         displayBoard[drawRow][drawCol] = currentShape[r][c]
                     }
                 }
@@ -112,7 +135,7 @@ const Game10 = () => {
 
     const renderBoard = (board) => {
         return (board.map((row, rowId) => {
-                return (<div 
+                return (<div
                     key={rowId}
                     className="flex flex-row w-fit">
                     {row.map((col, colId) => {
@@ -128,6 +151,7 @@ const Game10 = () => {
         )
     }
 
+    // GOOD: ref callback pattern to avoid stale closures in setInterval
     const savedAttemptMoveDown = useRef();
 
     useEffect(() => {
@@ -147,20 +171,22 @@ const Game10 = () => {
         };
     });
 
+    // TRICK: stable event listener using ref callback
     useEffect(() => {
         const listener = (e) => {
             if (savedHandleSwipe.current) {
                 savedHandleSwipe.current(e);
             }
         };
-    
+
         window.addEventListener("keydown", listener);
-        
+
         return () => {
             window.removeEventListener("keydown", listener);
         };
     }, []);
 
+    // TRICK: game loop with stable interval, reads latest function via ref
     useEffect(() => {
         const tickRate = 750
         const gameLoop = setInterval(() => {
@@ -170,24 +196,6 @@ const Game10 = () => {
         }, tickRate)
         return () => clearInterval(gameLoop);
     }, [])
-
-    useEffect(() => {
-        const handleSwipe = (e) => {
-            e.preventDefault()
-            if (e.key === "ArrowLeft") {
-                attemptMoveX(-1)
-            } else if (e.key === "ArrowRight") {
-                attemptMoveX(1)
-            } else {
-                return
-            }
-        }
-        
-        window.addEventListener("keydown", handleSwipe)
-        return () => {
-            window.removeEventListener("keydown", handleSwipe)
-        }
-    })
 
     return (
         <>

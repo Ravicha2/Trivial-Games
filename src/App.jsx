@@ -14,6 +14,7 @@ import Game10 from './components/Game10';
 import Game11 from './components/Game11';
 import Game12 from './components/Game12';
 import Game13 from './components/Game13';
+import Game14 from './components/Game14';
 
 function App() {
 
@@ -47,6 +48,8 @@ function App() {
       <Link to="/game12">Flappy Bird</Link>
       <p>|</p>
       <Link to="/game13">Dino Run</Link>
+      <p>|</p>
+      <Link to="/game14">Tower of Hanoi</Link>
     </nav>
       <Routes>
       <Route path="/" element={<Home />} />
@@ -63,6 +66,7 @@ function App() {
       <Route path="/game11" element={<Game11 />} />
       <Route path="/game12" element={<Game12 />} />
       <Route path="/game13" element={<Game13 />} />
+      <Route path="/game14" element={<Game14 />} />
       </Routes>
     </BrowserRouter>
   )

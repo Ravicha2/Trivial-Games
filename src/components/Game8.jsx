@@ -1,5 +1,16 @@
 import { useState } from "react";
 
+// TRICK: 15 Puzzle — the sliding mechanic is simple: when a cell is clicked,
+// check all 4 neighbors (up/down/left/right). If any neighbor is the empty cell
+// (""), swap the clicked cell with the empty one.
+
+// TRICK: Board creation — fill a 1D array with numbers 1-15 + "",
+// shuffle it (or just splice random elements), then reshape into 4x4.
+// This code uses the splice approach which is quick to write.
+
+// NOTE: Not all random 15-puzzle arrangements are solvable. For an exam,
+// don't worry about solvability — just make it work.
+
 const createBoard = () => {
     let numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     const removeIndex = () => {return Math.floor(Math.random() * numbers.length)}
@@ -26,7 +37,7 @@ const Game8 = () => {
             <div className="flex flex-row justify-center" key={`${rowIndex}`}>
                 {row.map((cell,colIndex) => {
                     return (
-                        <div 
+                        <div
                             className={`border w-10 h-10`}
                             key={colIndex}
                             onClick={() => moveTile(rowIndex, colIndex)}
@@ -40,6 +51,7 @@ const Game8 = () => {
         }))
     }
 
+    // GOOD: simple sliding mechanic — check 4 neighbors for empty cell, swap
     const moveTile = (rowIndex, colIndex) => {
         const movable = [
             [rowIndex-1, colIndex], [rowIndex, colIndex-1], [rowIndex+1, colIndex], [rowIndex, colIndex+1],
