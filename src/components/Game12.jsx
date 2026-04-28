@@ -157,7 +157,7 @@ const Game12 = () => {
 
                 })
             }, tickRate)
-            return () => clearInterval(gameLoop);   
+            return () => clearInterval(gameLoop);
         }
     }, [start])
 
